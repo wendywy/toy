@@ -1,4 +1,5 @@
-// Utility
+// Utility V0.9
+
 if ( typeof Object.create !== 'function' ) {
 	Object.create = function( obj ) {
 		function F() {};
