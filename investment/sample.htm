@@ -1,0 +1,61 @@
+<html>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="//www.lasoo.com.au/lasoo/v2/js/json2.min.js"></script>
+<script type="text/javascript" src="propertyinvestment.js"></script>
+<body>
+<div class="text"></div>
+<script>
+    var values = [
+        {
+            propertyPrice: 500000,
+            purchaseExpensive: 1500,
+            rent: 500,
+            interestRate: 0.07,
+            rentIncreasePerYear: 0.03,
+            propertyPriceIncreaseRatePerYear: 0.03,
+            rateAndFeePerYear: (200 + 170 + 600) * 4,
+            otherexpensePerYear: 400,
+            expenseIncreaseRatePerYear: 0.04,
+            depositRate: 0.1,
+            taxRate: 0.37,
+            highestTaxRate: 0.45
+        },
+        {
+            propertyPrice: 315000,
+            purchaseExpensive: 1500,
+            rent: 360,
+            interestRate: 0.07,
+            rentIncreasePerYear: 0.03,
+            propertyPriceIncreaseRatePerYear: 0.03,
+            rateAndFeePerYear: (200 + 170 + 400) * 4,
+            otherexpensePerYear: 400,
+            expenseIncreaseRatePerYear: 0.04,
+            depositRate: 0.1,
+            taxRate: 0.37,
+            highestTaxRate: 0.45
+        }
+    ];
+    function convertFloatToInt(data) {
+        for (var field in data) {
+            if (typeof data[field] == 'number' && (data[field] > 10 || data[field] < -10)) {
+                data[field] = parseInt(data[field] + 0.5).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+        }
+        return data;
+    }
+    for (var no in values) {
+        var investment = new Investment(values[no]);
+
+        $(".text").append(JSON.stringify(values[no], undefined, "<br/>")).append("<br/>");
+        var result;
+        for (var i = 0; i < 10; i++) {
+            result = investment.nextYear();
+        }
+        var rate = " (" + parseInt(result._sellAndGetCash / result._ifSaveInBank * 100) + "%)";
+        convertFloatToInt(result).compareWithBank += rate;
+        $(".text").append("=======<br/>").append(JSON.stringify(result, undefined, "<br/>")).append("<br/><br/>");
+        console.log(result);
+    }
+</script>
+</body>
+</html>
