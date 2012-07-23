@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset=utf-8>
+	<title>My Search Suggest</title>
+	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/smoothness/jquery-ui.css" type="text/css" media="all" />
+	<style type="text/css">
+		.page_wrap { width: 600px; margin: 20px auto; }
+		form { position: relative;}
+		form label { display: block; font-weight: bold; color: #095FAF }
+		form input { width: 200px;  display: inline-block; }
+		form button { display: inline-block; }
+
+
+		.suggest_term_grey { color: #ccc; position: absolute; z-index: 1; top: 20px; left: 0; }
+		.top_search_box {  }
+		.ui-autocomplete-loading { /*background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat;*/ }
+	</style>
+</head>
+<body>
+	<!--[if lte IE 6]><script src="js/ie6/warning.js"></script><script>window.onload=function(){e("js/ie6/")}</script><![endif]-->
+	
+    
+    <div class="page_wrap">
+		 
+        <form action="#" method="post">
+            <label for="input_search">Search for products...</label>
+            <input type="text" placeholder="Search for products..." id="input_top_search" class="top_search_box" />
+            <button type="submit" class="button btn_search"><span>Search</span></button>
+        </form> 
+        
+    </div><!--end of page_wrap-->
+    
+
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+
+	  <script src="jquery.searchsuggest.js"></script>
+	  <script type="text/javascript">
+
+	  	 $('#input_top_search').searchsuggest({
+			url: 'http://preview.lasoo.com.au/data.js',
+			limit: 10,
+			minLength: 3,
+			delay: 500,
+			onSelect: function() {
+				//console.log("test");
+				console.log(arguments);
+			}
+	  	 });
+	  </script>
+</body>
+</html>

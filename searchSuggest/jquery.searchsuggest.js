@@ -16,8 +16,6 @@ if ( typeof Object.create !== 'function' ) {
 			self.elem = elem;
 			self.$elem = $( elem );
 
-			self.url = 'http://search.twitter.com/search.json';
-
 			self.search = ( typeof options === 'string' )
 				? options
 				: options.search;
@@ -29,55 +27,97 @@ if ( typeof Object.create !== 'function' ) {
 				class: 'top_search_box',
 				disabled: 'disabled', 
 				autocomplete: 'off'		
-			}).addClass("suggest_term_grey").insertAfter("#input_top_search").hide().val('');
+			}).addClass("suggest_term_grey").insertAfter(self.$elem).hide().val('');
 
-			$("#input_top_search").css({
-				"position": "absolute",
-				"zIndex": 6
-			});
+			// self.$elem.css({
+			// 	"position": "absolute",
+			// 	"zIndex": 6
+			// });
 
-			self.keyboardSupport;
+			self.autocomplete(elem);
+			self.keyboardSupport(elem);
 		},
-		fetch: function() {
-			return $.ajax({
-				url: this.url,
-				data: { q: this.search },
-				dataType: 'jsonp'
-			});
-		}
+		autocomplete: function(elem){
+			var self = this;
+			self.elem = elem;
+			self.$elem = $( elem );
+			self.$elem.autocomplete({
+				source: function( request, response ) {
+							$.ajax({
+								url: self.options.url,
+								dataType: "jsonp",
+								jsonp: "jsonp",
+								data: {
+									type: "search.suggestedterm",
+									max: self.options.limit,
+									term: request.term
+								},
+								cache: true,
+								success: function( data ) {
+									response( data );
+									self.addSuggestText(data, request.term);
+
+								}
+						});
+					},
+					minLength: self.options.minLength,
+					delay: self.options.delay,
+					select: function( event, ui ) {
+					 	$( this ).val(ui.item.label);
+					
+						if ( self.options.onSelect && typeof self.options.onSelect === 'function' ) {
+								//self.options.suggestedSearchSelectEvent();
+							self.options.onSelect.apply( self.elem, arguments );
+						}
+
+
+					 	return false;	
+					},
+					open: function() {
+						$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+					},
+					close: function() {
+						$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+						$(".suggest_term_grey").hide();
+					}
+				});
+			
+		},
+
 		addSuggestText: function(data, requestTerm) {
 			var textCount = requestTerm.length;
 			var $inputSuggest = $('input.suggest_term_grey');
-			console.log("L:" + $('input.suggest_term_grey').length);
 
 			$inputSuggest.show().val((data.length>0)? (requestTerm + data[0].substring(textCount)):'');
 			
-		}
+		},
 
-		keyboardSupport: function(){
-			$('#input_top_search').on('keydown', function(e) { 
+		keyboardSupport: function(elem){
+			var self = this;
+			self.$elem = $( elem );
+
+			self.$elem.on('keydown', function(e) { 
 			  var keyCode = e.keyCode || e.which; 
-			  var suggestText = $('input.suggest_term_grey').val();
+			  var $inputSuggest = $('input.suggest_term_grey');
+			  var suggestText = $inputSuggest.val();
 			  if (keyCode == 9|| keyCode == 39) {
 			  	// tab key and arrow go right key
 			    // call custom function here
 			    if(suggestText.length>0){
-			    	$('#input_top_search').val(suggestText);
-			    	$('input.suggest_term_grey').val('');
+			    	self.$elem.val(suggestText);
+			    	$inputSuggest.val('');
 			   		 e.preventDefault(); 
 			  	}  else if (keyCode == 9) {
 	    			e.preventDefault(); 
 			  	}
 	  		  }  else if (keyCode == 40) {
 	    		// go down
-			    $('input.suggest_term_grey').hide().val('');
+			    $inputSuggest.hide().val('');
 
 			  }
 			});
 		}
-
-
-	}
+	};
 
 	$.fn.searchsuggest = function(options) {
 		  return this.each(function() {
@@ -86,12 +126,11 @@ if ( typeof Object.create !== 'function' ) {
 		  });
 	}
 	$.fn.searchsuggest.options = {
-		search: '@tutspremium',
-		wrapEachWith: '<li></li>',
+		url: 'http://preview.lasoo.com.au/data.js',
 		limit: 10,
-		refresh: null,
-		onComplete: null,
-		transition: 'fadeToggle'
+		minLength: 1,
+		delay: 700,
+		onSelect: null
 	};
 
 
