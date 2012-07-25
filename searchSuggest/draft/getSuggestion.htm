@@ -81,13 +81,18 @@ getSuggestion("ab", responseOutput, function(searchTerm) {
 	return d.promise();
 });
 getSuggestion("ab", responseOutput, function(searchTerm, response) {
-	response([{name:"abc", value: 1},{name:"ab7", value: 3}]);
+	response(["abc", "ab7"]);
 });
 getSuggestion("ab", responseOutput, function(searchTerm, response) {
 	setTimeout(function() {
 		response([{name:"abc", value: 1},{name:"ab8", value: 3}]);
 	}, 100);
 });
+getSuggestion("ab", responseOutput, function(searchTerm, response) {
+	setTimeout(function() {
+		response([{location:"abc", id: 1},{location:"ab9", id: 3}]);
+	}, 100);
+}, {nameProp: "location", valueProp: "id"});
 
 </script>
 </body>
