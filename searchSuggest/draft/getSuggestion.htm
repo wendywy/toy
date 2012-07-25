@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript">
+
+function suggestionFilter(searchTerm, data, options) {
+	var result=[];
+	searchTerm = searchTerm.toLowerCase();
+	for (var no in data) {
+		if (data[no].name && data[no].name.toLowerCase().indexOf(searchTerm)===0) {
+			result.push(data[no]);
+		}
+	}
+	return result;
+}
+
+function getSuggestion(searchTerm, response, source, options) {
+	function formatArray(source) {
+		var result=null;
+		if (source.length) {
+			if (typeof source[0]=="object") {
+				result=$.map(source, function(value) {
+					var nameProp=options && options.nameProp?options.nameProp:"name";
+					var valueProp=options && options.valueProp?options.valueProp:"value";
+					return {name: value[nameProp], value: value[valueProp]};
+				});
+			} else {
+				result=$.map(source, function(value) {
+					return {name: value, value: value};
+				});
+			}
+		}
+		return result?result:[];
+	}
+	if (source) {
+		if (typeof source=="object") {
+			if (source.length) {
+				var formatedArray=formatArray(source);
+				response(suggestionFilter(searchTerm, formatedArray, options));
+			}
+		} else if (typeof source=="function") {
+			var called=false;
+			function callResponse(data) {
+				if (!called) {
+					called=true;
+					var formatedArray=formatArray(data);
+					response(formatedArray);
+				}
+			}
+			var result=source(searchTerm, callResponse);
+			if (result) {
+				if (result.length) {
+					callResponse(result);
+				} else if (result.done && typeof result.done=="function") {
+					result.done(callResponse);
+				}
+			}
+		}
+	}
+}
+
+function responseOutput(data) {
+	console.log(data);
+}
+
+getSuggestion("ab", responseOutput, ["abc", "123", "ab1"]);
+getSuggestion("ab", responseOutput, [{name:"abc", value: 1},{name:"123", value: 2},{name:"ab2", value: 3}]);
+getSuggestion("ab", responseOutput, [{location:"abc", id: 1},{location:"123", id: 2},{location:"ab3", id: 3}],  {nameProp: "location", valueProp: "id"});
+getSuggestion("ab", responseOutput, function(searchTerm) {
+	return ["abc", "ab4"];
+});
+getSuggestion("ab", responseOutput, function(searchTerm) {
+	return [{name:"abc", value: 1},{name:"ab5", value: 3}];
+});
+getSuggestion("ab", responseOutput, function(searchTerm) {
+	var d=$.Deferred();
+	setTimeout(function() {
+		d.resolve(["abc", "ab6"]);
+	}, 100);
+	return d.promise();
+});
+getSuggestion("ab", responseOutput, function(searchTerm, response) {
+	response([{name:"abc", value: 1},{name:"ab7", value: 3}]);
+});
+getSuggestion("ab", responseOutput, function(searchTerm, response) {
+	setTimeout(function() {
+		response([{name:"abc", value: 1},{name:"ab8", value: 3}]);
+	}, 100);
+});
+
+</script>
+</body>
+</html>
